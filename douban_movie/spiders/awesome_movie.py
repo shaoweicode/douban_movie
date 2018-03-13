@@ -13,7 +13,7 @@ class AwesomeMovieSpider(scrapy.spiders.CrawlSpider):
 
     rules = (
         
-        Rule(LinkExtractor(allow=('movie.douban.com/subject/\d\d\d\d\d\d\d')),callback='parse_movie_item',follow=True),
+        Rule(LinkExtractor(allow=('/?from=subject-page')),callback='parse_movie_item',follow=True),
         # Rule(LinkExtractor(allow=('movie.douban.com/subject/\d\d\d\d\d\d\d')),follow=True),
         # Rule(LinkExtractor(allow=('from=subject-page"')),callback='parse_movie_item'),
 
@@ -25,9 +25,9 @@ class AwesomeMovieSpider(scrapy.spiders.CrawlSpider):
         "TODO: 解析 item"
         item = MovieItem()
         item['url'] = response.url
-        item['name'] = response.css('div#content span::text').extract()
-        item['summary'] = None
-        item['score'] = 0
+        item['name'] = response.css('title::text').extract()[0][0:-5].strip()
+        item['summary'] = response.css('div#link-report span::text').extract_first().rstrip()
+        item['score'] = response.css('strong.ll::text').extract()[0]
         return item
 
     def parse_start_url(self, response):
